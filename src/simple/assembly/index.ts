@@ -1,26 +1,29 @@
-import { storage, Context } from "near-sdk-as"
+import { storage, Context, PersistentVector } from "near-sdk-as"
 
-// return the string 'hello world'
-export function helloWorld(): string {
-  return 'hello world'
+let tickets = new PersistentVector<string>("m");
+
+const TOTAL_TICKET_COUNT = 100;
+
+export function getRemainingTicketCount(): i32 {
+  return TOTAL_TICKET_COUNT - tickets.length;
 }
 
-// read the given key from account (contract) storage
-export function read(key: string): string {
-  if (storage.hasKey(key)) {
-    return `✅ Key [ ${key} ] has value [ ${storage.getString(key)!} ]`
-  } else {
-    return `🚫 Key [ ${key} ] not found in storage. ( ${storageReport()} )`
+export function hasSignedUp(): boolean {
+  for (let i = 0; i < tickets.length; i++) {
+    if (tickets[i] == Context.sender) {
+      return true;
+    }
   }
+  return false;
 }
 
-// write the given value at the given key to account (contract) storage
-export function write(key: string, value: string): string {
-  storage.set(key, value)
-  return `✅ Data saved. ( ${storageReport()} )`
-}
-
-// private helper method used by read() and write() above
-function storageReport(): string {
-  return `storage [ ${Context.storageUsage} bytes ]`
+export function signUp(): string {
+  if (hasSignedUp()) {
+    return "already_signed_up";
+  }
+  if (getRemainingTicketCount() === 0) {
+    return "event_sold_out";
+  }
+  tickets.push(Context.sender);
+  return "success";
 }

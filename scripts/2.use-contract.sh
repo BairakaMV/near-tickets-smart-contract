@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# exit on first error after this point to avoid redeploying with successful build
 set -e
 
 echo
@@ -14,32 +13,31 @@ echo
 
 echo
 echo
-echo ---------------------------------------------------------
-echo "Step 1: Call 'view' functions on the contract"
-echo
-echo "(run this script again to see changes made by this file)"
-echo ---------------------------------------------------------
 echo
 
-near view $CONTRACT helloWorld
+echo "Here is the number of available tickets"
+
+near view $CONTRACT getRemainingTicketCount
 
 echo
 echo
+echo
+echo
+echo
+echo
+echo "Your current status"
+near view $CONTRACT hasSignedUp
 
-near view $CONTRACT read '{"key":"some-key"}'
+echo
+echo
+echo
+echo
+echo "Status of your signing procces"
+near call $CONTRACT signUp --account_id greatm.testnet
 
 echo
 echo
-echo ---------------------------------------------------------
-echo "Step 2: Call 'change' functions on the contract"
-echo ---------------------------------------------------------
+echo
 echo
 
-# the following line fails with an error because we can't write to storage without signing the message
-# --> FunctionCallError(HostError(ProhibitedInView { method_name: "storage_write" }))
-# near view $CONTRACT write '{"key": "some-key", "value":"some value"}'
-near call $CONTRACT write '{"key": "some-key", "value":"some value"}' --accountId $CONTRACT
-
-echo
-echo "now run this script again to see changes made by this file"
 exit 0
